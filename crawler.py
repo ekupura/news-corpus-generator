@@ -1,23 +1,19 @@
 import requests
-import re
+import requests.exceptions
+import yaml
 import sqlite3
-from pprint import pprint
 from bs4 import BeautifulSoup
 from tqdm import tqdm
 
-class Crawler:
-    def __init__(self):
-        self.urls_and_categories = [('http://news.livedoor.com/topics/category/dom/', "domestic"),
-                               ('http://news.livedoor.com/topics/category/world/',  "world"),
-                               ('http://news.livedoor.com/topics/category/eco/',  "economy"),
-                               ('http://news.livedoor.com/topics/category/ent/',  "entertainment"),
-                               ('http://news.livedoor.com/topics/category/sports/',  "sports"),
-                               ('http://news.livedoor.com/article/category/52/',  "movie"),
-                               ('http://news.livedoor.com/topics/category/gourmet/',  "gourmet")]
 
-        self.db_name = "./news.db"
-        self.table_name = "news"
-        self.n_iter = 1
+class Crawler:
+    def __init__(self, configuration_path):
+        with open(configuration_path) as f:
+            configuration = yaml.load(f)
+        self.db_name = configuration['db_name']
+        self.table_name = configuration['table_name']
+        self.n_iter = configuration['n_iter']
+        self.urls_and_categories = list(configuration['urls'].items())
 
     def get_article(self, article_url):
         # get summary
@@ -55,13 +51,19 @@ class Crawler:
 
     def get_news_and_export(self):
         for uc in self.urls_and_categories:
-            category_root_url, category = uc[0], uc[1]
-            for i in tqdm(range(self.n_iter)):
+            category_root_url, category = uc[1], uc[0]
+            for i in range(self.n_iter):
+                print(category + ":" + str(i + 1) + "/" + str(self.n_iter))
                 iter_url = category_root_url + '?p=' + str(i + 1)
                 article_url_list = self.get_article_list(iter_url)
                 summaries, articles, urls = [], [], []
                 for article_url in article_url_list:
-                    s, a = self.get_article(article_url)
+                    try:
+                        s, a = self.get_article(article_url)
+                    except requests.exceptions.ConnectionError:
+                        import traceback
+                        traceback.print_exc()
+                        continue
                     summaries.append(s)
                     articles.append(a)
                     urls.append(article_url)

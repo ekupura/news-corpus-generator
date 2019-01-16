@@ -1,0 +1,12 @@
+db_name: "./news.db"
+table_name: "news"
+n_iter: 2
+urls:
+  domestic: "http://news.livedoor.com/topics/category/dom/"
+  world: "http://news.livedoor.com/topics/category/world/"
+  economy: "http://news.livedoor.com/topics/category/eco/"
+  entertainment: "http://news.livedoor.com/topics/category/ent/"
+  sports: "http://news.livedoor.com/topics/category/sports/"
+  movie: "http://news.livedoor.com/article/category/52/"
+  gourmet: "http://news.livedoor.com/topics/category/gourmet/"
+  female: "http://news.livedoor.com/topics/category/love/"
