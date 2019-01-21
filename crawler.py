@@ -54,8 +54,16 @@ class Crawler:
             category_root_url, category = uc[1], uc[0]
             for i in range(self.n_iter):
                 print(category + ":" + str(i + 1) + "/" + str(self.n_iter))
+                # get urls
                 iter_url = category_root_url + '?p=' + str(i + 1)
-                article_url_list = self.get_article_list(iter_url)
+                try:
+                    article_url_list = self.get_article_list(iter_url)
+                except requests.exceptions.ConnectionError:
+                    import traceback
+                    traceback.print_exc()
+                    continue
+                
+                # get article
                 summaries, articles, urls = [], [], []
                 for article_url in article_url_list:
                     try:
